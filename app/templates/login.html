@@ -1,44 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="fb-root"></div>
   <h1>Sign In</h1>
-  <form action="" method="post" name="login">
-    {{ form.hidden_tag() }}
-    <p>
-      Please enter your OpenID:<br>
-      {{ form.openid(size=80) }}<br>
-      {% for error in form.openid.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-      {% endfor %}<br>
-      {{ form.remember_me }} Remember Me
-    </p>
-    <p>
-      <input type="submit" value="Sign In">
-    </p>
-    <p>
-      <a target="" href="/login/twitter"><img src="{{ url_for('static', filename='sign-in-with-twitter-gray.png') }}" alt="" /></a>
-    </p>
-    <p>
-      <div class="fb-login-button" onlogin="checkLoginState()" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="false">Sign in with Facebook</div>
-    </p>
 
-  </form>
-  <script>(function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7&appId=529433733913526";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));</script>
-
-  <script type="text/javascript">
-  function checkLoginState() {
-    FB.getLoginStatus(function(response) {
-      if(response.status == "connected"){
-        window.top.location = "{{ url_for('index') }}";
-      }
-    });
-  }
-  </script>
+  <p>
+    <a target="" href="/login/twitter"><img src="{{ url_for('static', filename='sign-in-with-twitter-gray.png') }}" alt="" /></a>
+  </p>
+  <p>
+    <a target="" href="/login/facebook"><img src="{{ url_for('static', filename='sign-in-with-facebook.png') }}" alt="" /></a>
+  </p>
 {% endblock %}
