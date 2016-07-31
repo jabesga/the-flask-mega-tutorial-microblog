@@ -9,7 +9,10 @@
     {% endif %}
   </head>
   <body>
-    <div>Microblog: <a href="/">Home</a></div>
+    <div>Microblog:
+      <a href="/">Home</a> | 
+      <a href="/login">Login</a>
+    </div>
     <hr>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
