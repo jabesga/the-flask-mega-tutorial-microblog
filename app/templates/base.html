@@ -10,8 +10,13 @@
   </head>
   <body>
     <div>Microblog:
-      <a href="/">Home</a> | 
+      <a href="/">Home</a>
+      {% if g.user.is_authenticated %}
+      | <a href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
       <a href="/login">Login</a>
+      {% endif %}
+
     </div>
     <hr>
     {% with messages = get_flashed_messages() %}

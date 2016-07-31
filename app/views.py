@@ -1,8 +1,8 @@
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, session, g
 from app import app, oauth, login_manager, db
 from .forms import LoginForm
 from .models import User
-from flask_login import login_user
+from flask_login import login_user, logout_user, current_user, login_required
 
 twitter = oauth.remote_app('twitter',
                            base_url='https://api.twitter.com/1.1/',
@@ -28,9 +28,18 @@ def load_user(id):
     # (In that case, the ID will manually be removed from the session and processing will continue.)
     return User.query.get(int(id))
 
+@app.before_request
+def before_request():
+    g.user = current_user
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
 @app.route('/')
 def index():
-    user = {'nickname': 'Miguel'}
+    user = g.user
     posts = [
         {
             'author': {'nickname': 'John'},
@@ -48,14 +57,13 @@ def index():
 
 @app.route('/login/', methods=['GET','POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        flash_message = 'Login requested for OpenID="{}", remember_me={}'.format(form.openid.data, form.remember_me.data)
-        flash(flash_message)
-        return redirect('/')
+    # form = LoginForm()
+    # if form.validate_on_submit():
+    #    flash_message = 'Login requested for OpenID="{}", remember_me={}'.format(form.openid.data, form.remember_me.data)
+    #    flash(flash_message)
+    #    return redirect('/')
     return render_template('login.html',
-                           title='Sign In',
-                           form=form)
+                           title='Sign In')
 
 @app.route('/login/<provider>/')
 def login_with(provider):
@@ -104,7 +112,18 @@ def facebook_authorized():
         error_message = 'Access denied: reason={} error={}'.format(request.args['error_reason'], request.args['error_description'])
         flash(error_message)
         return redirect('/login')
-
+        
     session['facebook_token'] = (resp['access_token'], '')
+    me = facebook.get('/me?fields=id,name,email')
+    social_id = 'facebook$' + str(me.data['id'])
+    nickname = me.data['name']
+    email = me.data['email']
+    user = User.query.filter_by(social_id=social_id).first()
+    if not user:
+        user = User(social_id=social_id, nickname=nickname, email=email)
+        db.session.add(user)
+        db.session.commit()
+    login_user(user, True)
+
     flash('You were signed sucessfully')
     return redirect('/')
